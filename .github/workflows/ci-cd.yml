@@ -2,7 +2,8 @@ name: DaNFePDF Service CI/CD
 on:
   push:
     branches:
-      - main #production
+      - main # production
+
 env:
   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
   DOCKER_HUB_REPOSITORY: willianpatrick/danfepdf
@@ -12,5 +13,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Login no Docker Hub com Token
       - name: Log in to Docker Hub with Token
         run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      # Build da imagem Docker
+      - name: Build Docker Image
+        run: |
+          docker build --no-cache -t ${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }} -f ./backend-api/src/Dockerfile .
+          docker tag ${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }} \
+              ${{ env.DOCKER_HUB_REPOSITORY }}:latest
+
+      # Push da imagem para o Docker Hub
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }}
+          docker push ${{ env.DOCKER_HUB_REPOSITORY }}:latest
