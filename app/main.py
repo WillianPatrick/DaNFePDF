@@ -2,6 +2,9 @@ from flask import Flask, request, send_file, jsonify
 from lxml import etree
 from pytrustnfe.nfe.danfe import danfe
 from io import BytesIO
+import traceback
+
+
 
 app = Flask(__name__)
 
@@ -36,8 +39,9 @@ def convert():
         else:
             return jsonify({'error': 'Arquivo não permitido'}), 400
     except Exception as e:
-        print("Erro ao gerar DANFE:", str(e))  # Log do erro
-        return jsonify({'error': str(e)}), 500
+        print("Erro ao gerar DANFE:", str(e))
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500        
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

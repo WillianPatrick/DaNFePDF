@@ -1,12 +1,25 @@
 # Usar uma imagem base oficial do Python
 FROM python:3.9-slim
 
-# Instalar dependências do sistema necessárias para PyTrustNFe e Git
+# Instalar dependências do sistema necessárias para PyTrustNFe e ReportLab
 RUN apt-get update && apt-get install -y \
     libxml2 \
     libxslt1.1 \
     libffi-dev \
+    libfreetype6 \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    zlib1g-dev \
     git \
+    fontconfig \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar fontes necessárias
+RUN apt-get update && apt-get install -y \
+    fonts-dejavu \
+    fonts-liberation \
+    fonts-freefont-ttf \
     && rm -rf /var/lib/apt/lists/*
 
 # Definir o diretório de trabalho
