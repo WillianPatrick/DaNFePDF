@@ -24,7 +24,7 @@ jobs:
       # Build da imagem Docker
       - name: Build Docker Image
         run: |
-          docker build --no-cache -t ${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }} -f ./backend-api/src/Dockerfile .
+          docker build --no-cache -t ${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }} -f ./Dockerfile .
           docker tag ${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }} \
               ${{ env.DOCKER_HUB_REPOSITORY }}:latest
 
