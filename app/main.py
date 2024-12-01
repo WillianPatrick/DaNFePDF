@@ -2,43 +2,39 @@ from flask import Flask, request, send_file, jsonify
 from lxml import etree
 from pytrustnfe.nfe.danfe import danfe
 from io import BytesIO
-import os
 
 app = Flask(__name__)
 
 @app.route('/convert', methods=['POST'])
 def convert():
     try:
-        # Obter o XML do corpo da requisição
-        nfe_xml = request.data.decode('utf-8')
-        print("XML recebido:", nfe_xml)
+        # Verificar se um arquivo foi enviado
+        if 'file' not in request.files:
+            return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'Nenhum arquivo selecionado'}), 400
+        if file:
+            # Ler o conteúdo do arquivo
+            nfe_xml_content = file.read()
+            # Analisar o conteúdo XML
+            xml_element = etree.fromstring(nfe_xml_content)
+            oDanfe = danfe(list_xml=[xml_element])
 
-        # Verificar se o dado é um caminho de arquivo válido
-        if nfe_xml.strip().endswith('.xml') and os.path.exists(nfe_xml.strip()):
-            # Ler o conteúdo do arquivo XML
-            with open(nfe_xml.strip(), 'r', encoding='utf-8') as file:
-                nfe_xml_content = file.read()
-        else:
-            # Caso contrário, tratar como o próprio conteúdo do XML
-            nfe_xml_content = nfe_xml
+            # Gerar a DANFE
+            pdf_io = BytesIO()
+            oDanfe.writeto_pdf(pdf_io)
+            pdf_io.seek(0)
 
-        print("Conteúdo do XML para DANFE:", nfe_xml_content)
-
-        xml_element = etree.fromstring(nfe_xml_content)
-        oDanfe = danfe(list_xml=[xml_element])
-
-       # Gerar a DANFE
-        pdf_io = BytesIO()
-        oDanfe.writeto_pdf(pdf_io)
-        pdf_io.seek(0)
-
-        # Retornar o PDF como resposta
-        return send_file(
-            pdf_io,
-            mimetype='application/pdf',
-            as_attachment=True,
-            download_name='danfe.pdf'
+            # Retornar o PDF como resposta
+            return send_file(
+                pdf_io,
+                mimetype='application/pdf',
+                as_attachment=True,
+                download_name='danfe.pdf'
             )
+        else:
+            return jsonify({'error': 'Arquivo não permitido'}), 400
     except Exception as e:
         print("Erro ao gerar DANFE:", str(e))  # Log do erro
         return jsonify({'error': str(e)}), 500
