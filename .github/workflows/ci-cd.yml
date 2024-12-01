@@ -1,0 +1,16 @@
+name: DaNFePDF Service CI/CD
+on:
+  push:
+    branches:
+      - main #production
+env:
+  DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+  DOCKER_HUB_REPOSITORY: willianpatrick/danfepdf
+  DOCKER_IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Docker Hub with Token
+        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
