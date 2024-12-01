@@ -7,7 +7,15 @@ import traceback
 
 
 app = Flask(__name__)
-
+@app.route('/', methods=['GET'])
+def health():
+    try:
+        # Verificação básica de saúde do serviço
+        return jsonify({'status': 'healthy', 'message': 'Service is running'}), 200
+    except Exception as e:
+        print("Erro no health check:", str(e))
+        return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
+    
 @app.route('/convert', methods=['POST'])
 def convert():
     try:
